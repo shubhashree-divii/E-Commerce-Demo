@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
-const isAuthenticated = async (req, res, next) => {
+const isAdmin = async (req, res, next) => {
   try {
     const token = req.header("Authorization").replace("Bearer ", "");
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -11,6 +11,9 @@ const isAuthenticated = async (req, res, next) => {
     if (!user) {
       throw new Error();
     }
+    if (user.role != "admin") {
+      throw new Error();
+    }
     req.token = token;
     req.user = user;
     next();
@@ -18,4 +21,4 @@ const isAuthenticated = async (req, res, next) => {
     res.status(401).send({ error: "Authentication required" });
   }
 };
-module.exports = isAuthenticated;
+module.exports = isAdmin;

@@ -33,6 +33,13 @@ const userSchema = new mongoose.Schema(
         }
       },
     },
+    role: {
+      type: String,
+      required: true,
+      trim: true,
+      lowercase: true,
+      default:"user"
+    },
     tokens: [
       {
         token: {

@@ -1,6 +1,7 @@
 const express = require("express");
 const product = require("../models/product");
 const isAuthenticated = require("../middleware/isAuthenticated");
+const isAdmin = require("../middleware/isAdmin");
 
 const router = new express.Router();
 
@@ -17,21 +18,21 @@ router.get("/products", async (req, res) => {
 //fetch an product
 router.get("/products/:id", async (req, res) => {
   try {
-    console.log(req.params)
+    console.log(req.params);
     const item = await product.findOne({ _id: req.params.id });
     if (!item) {
       res.status(404).send({ error: "product not found" });
     }
-    console.log(item)
+    console.log(item);
     res.status(200).send(item);
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.status(400).send(error);
   }
 });
 
 //create an product
-router.post("/products", isAuthenticated, async (req, res) => {
+router.post("/products", isAdmin, async (req, res) => {
   try {
     const newproduct = new product({
       ...req.body,
@@ -47,7 +48,7 @@ router.post("/products", isAuthenticated, async (req, res) => {
 
 //update an product
 
-router.post("/products/:id", isAuthenticated, async (req, res) => {
+router.post("/products/:id", isAdmin, async (req, res) => {
   const updates = Object.keys(req.body);
   const allowedUpdates = ["name", "description", "category", "price"];
 
@@ -75,7 +76,7 @@ router.post("/products/:id", isAuthenticated, async (req, res) => {
 });
 
 //delete product
-router.delete("/products/:id", isAuthenticated, async (req, res) => {
+router.delete("/products/:id", isAdmin, async (req, res) => {
   try {
     const deletedproduct = await product.findOneAndDelete({
       _id: req.params.id,
