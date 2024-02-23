@@ -1,35 +1,40 @@
 const express = require("express");
 const Cart = require("../models/cart");
-const Item = require("../models/item");
-const Auth = require("../middleware/auth");
+const Product = require("../models/product");
+const isAuthenticated = require("../middleware/isAuthenticated");
 
 const router = new express.Router();
 
 //get cart items
 
-router.get("/cart", Auth, async (req, res) => {
+router.get("/cart", isAuthenticated, async (req, res) => {
   const owner = req.user._id;
 
   try {
     const cart = await Cart.findOne({ owner });
     if (cart && cart.products.length > 0) {
+      cart.total = await cart.products.reduce(async (final, item) => {
+        const lineItem = await Product.findOne({ _id: item.productId });
+        console.log("in ",final +( item.quantity * lineItem.price))
+        return final +( item.quantity * lineItem.price);
+      }, 0);
       res.status(200).send(cart);
     } else {
-      res.send(null);
+      res.send({ message: "Cart Empty" });
     }
   } catch (error) {
-    res.status(500).send();
+    res.status(500).send(error);
   }
 });
 
 //add cart
-router.post("/cart", Auth, async (req, res) => {
+router.post("/cart", isAuthenticated, async (req, res) => {
   const owner = req.user._id;
   const { productId, quantity } = req.body;
 
   try {
     const cart = await Cart.findOne({ owner });
-    const item = await Item.findOne({ _id: productId });
+    const item = await Product.findOne({ _id: productId });
 
     if (!item) {
       res.status(404).send({ message: "item not found" });
@@ -37,19 +42,20 @@ router.post("/cart", Auth, async (req, res) => {
     }
     //If cart already exists for user,
     if (cart) {
-      const itemIndex = cart.products.findIndex((product) => product.productId == productId);
+      const itemIndex = cart.products.findIndex(
+        (product) => product.productId == productId
+      );
       //check if product exists or not
 
       if (itemIndex > -1) {
         let product = cart.products[itemIndex];
         product.quantity += quantity;
-        
+
         cart.products[itemIndex] = product;
         await cart.save();
         res.status(200).send(cart);
       } else {
-        cart.products.push({ productId, quantity, price });
-        
+        cart.products.push({ productId, quantity });
 
         await cart.save();
         res.status(200).send(cart);
@@ -58,7 +64,7 @@ router.post("/cart", Auth, async (req, res) => {
       //no cart exists, create one
       const newCart = await Cart.create({
         owner,
-        products: [{ products, quantity, price }]
+        products: [{ productId, quantity }],
       });
       return res.status(201).send(newCart);
     }
@@ -70,31 +76,31 @@ router.post("/cart", Auth, async (req, res) => {
 
 //delete item in cart
 
-router.delete("/cart/", Auth, async (req, res) => {
+router.delete("/cart/", isAuthenticated, async (req, res) => {
   const owner = req.user._id;
- const productId = req.query.productId;
+  const productId = req.query.productId;
   try {
     let cart = await Cart.findOne({ owner });
 
-    const itemIndex = cart.products.findIndex((item) => item.productId == productId);
-    
+    const itemIndex = cart.products.findIndex(
+      (item) => item.productId == productId
+    );
+
     if (itemIndex > -1) {
       let item = cart.products[itemIndex];
-      
+
       cart.products.splice(itemIndex, 1);
-      
+
       cart = await cart.save();
 
       res.status(200).send(cart);
     } else {
-    res.status(404).send("item not found");
+      res.status(404).send("item not found");
     }
   } catch (error) {
     console.log(error);
     res.status(400).send();
   }
 });
-
-
 
 module.exports = router;
