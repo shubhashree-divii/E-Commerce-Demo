@@ -13,11 +13,6 @@ router.get("/cart", isAuthenticated, async (req, res) => {
   try {
     const cart = await Cart.findOne({ owner });
     if (cart && cart.products.length > 0) {
-      cart.total = await cart.products.reduce(async (final, item) => {
-        const lineItem = await Product.findOne({ _id: item.productId });
-        console.log("in ",final +( item.quantity * lineItem.price))
-        return final +( item.quantity * lineItem.price);
-      }, 0);
       res.status(200).send(cart);
     } else {
       res.send({ message: "Cart Empty" });
@@ -76,9 +71,9 @@ router.post("/cart", isAuthenticated, async (req, res) => {
 
 //delete item in cart
 
-router.delete("/cart/", isAuthenticated, async (req, res) => {
+router.delete("/cart/:productId", isAuthenticated, async (req, res) => {
   const owner = req.user._id;
-  const productId = req.query.productId;
+  const productId = req.params.productId;
   try {
     let cart = await Cart.findOne({ owner });
 

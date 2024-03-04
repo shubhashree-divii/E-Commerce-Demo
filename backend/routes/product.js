@@ -50,7 +50,7 @@ router.post("/products", isAdmin, async (req, res) => {
 
 router.post("/products/:id", isAdmin, async (req, res) => {
   const updates = Object.keys(req.body);
-  const allowedUpdates = ["name", "description", "category", "price"];
+  const allowedUpdates = ["name", "description", "category", "price","image"];
 
   const isValidOperation = updates.every((update) =>
     allowedUpdates.includes(update)
