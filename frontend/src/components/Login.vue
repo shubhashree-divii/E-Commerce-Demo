@@ -1,9 +1,6 @@
 <template>
   <div class="pa-4 text-center">
-    <v-btn @click="isActive = true">Login</v-btn>
-    <v-dialog width="50%" scrollable v-model="isActive">
-      <template v-slot:default="{ isActive }">
-        <v-card title="Login">
+    <v-card title="Login">
           <v-divider class="mt-3"></v-divider>
 
           <v-card-text>
@@ -26,8 +23,6 @@
             </v-form>
           </v-card-text>
         </v-card>
-      </template>
-    </v-dialog>
     <LoaderVue :loading="loaderState" />
   </div>
 </template>

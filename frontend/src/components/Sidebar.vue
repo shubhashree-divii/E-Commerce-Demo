@@ -5,7 +5,8 @@
     <v-app-bar-title>Application</v-app-bar-title>
     <template v-slot:append>
       <v-btn @click="$router.push('/cart')">Cart</v-btn>
-      <Login />
+      <v-btn @click="$router.push('/login')">Login</v-btn>
+      
     </template>
     
   </v-app-bar>
@@ -16,7 +17,6 @@
 </template>
 <script setup>
 import { ref } from "vue";
-import Login from "@/components/Login.vue";
 const isActive = ref(true);
 
 const drawer = ref(null);

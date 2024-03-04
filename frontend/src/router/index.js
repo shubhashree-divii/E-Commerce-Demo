@@ -8,7 +8,7 @@ const router = createRouter({
       path: "/",
       name: "Home",
       component: () => import("@/layouts/AppBar.vue"),
-      redirect: { name: "Home" },
+      redirect: { name: "Login" },
       children: [
         {
           path: "/product",
@@ -16,14 +16,27 @@ const router = createRouter({
           component: () => import("@/pages/Product.vue"),
         },
         {
+          path: "/login",
+          name: "Login",
+          component: () => import("@/pages/index.vue"),
+        },
+        {
           path: "/cart",
           name: "Cart",
           component: () => import("@/pages/Cart.vue"),
         },
         {
-          path: "/admin/product",
-          name: "AdminProduct",
-          component: () => import("@/pages/AdminProduct.vue"),
+          path: "/admin",
+          name: "",
+      redirect: { name: "AdminProduct" },
+
+          children: [
+            {
+              path: "/admin/product",
+              name: "AdminProduct",
+              component: () => import("@/pages/AdminProduct.vue"),
+            },
+          ],
         },
       ],
     },
